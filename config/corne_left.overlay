@@ -1,7 +1,8 @@
 /*
  * Configuration Devicetree pour la moitié gauche (Central)
  * - Trackpad Azoteq local gauche sur I2C (adresse 0x74)
- * - RDY sur TX0 (&pro_micro 0), RST sur RX1 (&pro_micro 1)
+ * - Câblage : RDY sur TX0 (&pro_micro 1 / P0.06), RST sur RX1 (&pro_micro 0 / P0.08)
+ * - Résistances de tirage I2C internes activées (bias-pull-up)
  * - Inversion des axes X et Y (flip-x, flip-y)
  * - Réception des événements du trackpad droit via zmk,input-split
  */
@@ -11,6 +12,19 @@
 #include <input/processors.dtsi>
 #include <dt-bindings/input/input-event-codes.h>
 
+/* Activation des résistances pull-up internes sur le bus I2C (SDA=P0.17, SCL=P0.20) */
+&i2c0_default {
+    group1 {
+        bias-pull-up;
+    };
+};
+
+&i2c0_sleep {
+    group1 {
+        bias-pull-up;
+    };
+};
+
 &pro_micro_i2c {
     status = "okay";
 
@@ -19,9 +33,9 @@
         reg = <0x74>;
         status = "okay";
 
-        /* Câblage : RST sur RX1 (&pro_micro 1) et RDY sur TX0 (&pro_micro 0) */
-        reset-gpios = <&pro_micro 1 GPIO_ACTIVE_LOW>;
-        rdy-gpios = <&pro_micro 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+        /* Câblage corrigé : RST sur RX1 (&pro_micro 0) et RDY sur TX0 (&pro_micro 1) */
+        reset-gpios = <&pro_micro 0 GPIO_ACTIVE_LOW>;
+        rdy-gpios = <&pro_micro 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
 
         one-finger-tap;
         press-and-hold;
@@ -35,10 +49,10 @@
         bottom-beta = <5>;
         stationary-threshold = <5>;
 
-        /* Inversion des axes demandée */
+        /* Inversion des axes */
         flip-x;
         flip-y;
-        /* Décommenter switch-xy si une permutation des axes X et Y est souhaitée selon l'orientation physique : */
+        /* Décommenter switch-xy si une permutation X/Y est souhaitée : */
         // switch-xy;
     };
 };
