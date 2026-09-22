@@ -49,11 +49,10 @@
         bottom-beta = <5>;
         stationary-threshold = <5>;
 
-        /* Inversion des axes */
+        /* Inversion et permutation des axes pour orientation normale */
         flip-x;
         flip-y;
-        /* Décommenter switch-xy si une permutation X/Y est souhaitée : */
-        // switch-xy;
+        switch-xy;
     };
 };
 
