@@ -51,16 +51,17 @@ const lv_img_dsc_t *head_imgs[] = {&head_00, &head_01, &head_02, &head_03, &head
                                    &head_12, &head_13, &head_14, &head_15};
 
 #elif IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CAT)
-LV_IMG_DECLARE(cat_0);
-LV_IMG_DECLARE(cat_1);
-LV_IMG_DECLARE(cat_2);
-LV_IMG_DECLARE(cat_3);
-LV_IMG_DECLARE(cat_4);
-LV_IMG_DECLARE(cat_5);
-LV_IMG_DECLARE(cat_6);
-LV_IMG_DECLARE(cat_7);
+LV_IMG_DECLARE(dog_sit1_90);
+LV_IMG_DECLARE(dog_sit2_90);
+LV_IMG_DECLARE(dog_walk1_90);
+LV_IMG_DECLARE(dog_walk2_90);
 
-const lv_img_dsc_t *cat_imgs[] = {&cat_0, &cat_1, &cat_2, &cat_3, &cat_4, &cat_5, &cat_6, &cat_7};
+static const lv_img_dsc_t *cat_imgs[] = {
+    &dog_sit1_90,
+    &dog_sit2_90,
+    &dog_walk1_90,
+    &dog_walk2_90,
+};
 
 #elif IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SPACEMAN)
 
@@ -181,7 +182,7 @@ lv_obj_t *draw_animation(lv_obj_t *canvas, struct zmk_widget_screen *widget) {
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_HEAD)
     lv_animimg_set_src(art, (const void **)head_imgs, 16);
 #elif IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CAT)
-    lv_animimg_set_src(art, (const void **)cat_imgs, 8);
+    lv_animimg_set_src(art, (const void **)cat_imgs, sizeof(cat_imgs) / sizeof(cat_imgs[0]));
 #elif IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SPACEMAN)
     lv_animimg_set_src(art, (const void **)spaceman_imgs, 20);
 #elif IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_POKEMON)
@@ -212,7 +213,7 @@ lv_obj_t *draw_animation(lv_obj_t *canvas, struct zmk_widget_screen *widget) {
        // IS_ENABLED(CONFIG_NICE_OLED_WIDGET_STATIC_IMAGE_PERIPHERAL)
 
     if (art) {
-        lv_obj_align(art, LV_ALIGN_TOP_LEFT, CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_X, CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CUSTOM_Y);
+        lv_obj_center(art);
     }
     return art;
 }
