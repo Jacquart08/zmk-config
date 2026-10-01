@@ -51,16 +51,26 @@ const lv_img_dsc_t *head_imgs[] = {&head_00, &head_01, &head_02, &head_03, &head
                                    &head_12, &head_13, &head_14, &head_15};
 
 #elif IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CAT)
-LV_IMG_DECLARE(dog_sit1_90);
-LV_IMG_DECLARE(dog_sit2_90);
-LV_IMG_DECLARE(dog_walk1_90);
-LV_IMG_DECLARE(dog_walk2_90);
+LV_IMG_DECLARE(idle_img1);
+LV_IMG_DECLARE(idle_img2);
+LV_IMG_DECLARE(idle_img3);
+LV_IMG_DECLARE(idle_img4);
+LV_IMG_DECLARE(idle_img5);
+LV_IMG_DECLARE(slow_img);
+LV_IMG_DECLARE(fast_img1);
+LV_IMG_DECLARE(fast_img2);
 
 static const lv_img_dsc_t *cat_imgs[] = {
-    &dog_sit1_90,
-    &dog_sit2_90,
-    &dog_walk1_90,
-    &dog_walk2_90,
+    &idle_img1,
+    &idle_img2,
+    &idle_img3,
+    &idle_img4,
+    &idle_img5,
+    &slow_img,
+    &fast_img1,
+    &fast_img2,
+    &fast_img1,
+    &fast_img2,
 };
 
 #elif IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SPACEMAN)
@@ -177,7 +187,7 @@ lv_obj_t *draw_animation(lv_obj_t *canvas, struct zmk_widget_screen *widget) {
     lv_obj_t *art = lv_animimg_create(canvas);
 
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL)
-    lv_obj_center(art);
+    lv_obj_align(art, LV_ALIGN_TOP_LEFT, 0, 0);
 
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_HEAD)
     lv_animimg_set_src(art, (const void **)head_imgs, 16);
@@ -213,7 +223,7 @@ lv_obj_t *draw_animation(lv_obj_t *canvas, struct zmk_widget_screen *widget) {
        // IS_ENABLED(CONFIG_NICE_OLED_WIDGET_STATIC_IMAGE_PERIPHERAL)
 
     if (art) {
-        lv_obj_center(art);
+        lv_obj_align(art, LV_ALIGN_TOP_LEFT, 0, 0);
     }
     return art;
 }

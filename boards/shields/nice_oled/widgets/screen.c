@@ -955,6 +955,21 @@ ZMK_SUBSCRIPTION(widget_battery_status, zmk_battery_state_changed);
 ZMK_SUBSCRIPTION(widget_battery_status, zmk_usb_conn_state_changed);
 #endif /* IS_ENABLED(CONFIG_USB_DEVICE_STACK) */
 
+static void charger_timer_cb(lv_timer_t *timer) {
+    struct zmk_widget_screen *widget = (struct zmk_widget_screen *)timer->user_data;
+    bool is_usb = false;
+#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+    is_usb = zmk_usb_is_powered();
+#endif
+    if (is_usb != widget->state.charging) {
+        struct battery_status_state state = {
+            .level = zmk_battery_state_of_charge(),
+            .usb_present = is_usb,
+        };
+        set_battery_status(widget, state);
+    }
+}
+
 #endif // !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_CENTRAL_SHOW_BATTERY_PERIPHERAL_ALL)
 
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_CENTRAL_SHOW_BATTERY_PERIPHERAL_ALL) ||                     \
@@ -1136,6 +1151,13 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     lv_canvas_set_buffer(canvas, widget->cbuf, CANVAS_HEIGHT, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);
 
     sys_slist_append(&widgets, &widget->node);
+
+    bool is_usb = false;
+#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+    is_usb = zmk_usb_is_powered();
+#endif
+    widget->state.charging = is_usb;
+    lv_timer_create(charger_timer_cb, 500, widget);
 
     widget_battery_status_init();
 

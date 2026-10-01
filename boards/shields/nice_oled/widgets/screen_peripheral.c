@@ -85,10 +85,15 @@ static void set_battery_status(struct zmk_widget_screen *widget,
 
     if (peripheral_art) {
         if (is_usb) {
-            lv_obj_clear_flag(peripheral_art, LV_OBJ_FLAG_HIDDEN);
+            if (lv_obj_has_flag(peripheral_art, LV_OBJ_FLAG_HIDDEN)) {
+                lv_obj_clear_flag(peripheral_art, LV_OBJ_FLAG_HIDDEN);
+                lv_animimg_start(peripheral_art);
+            }
         } else {
-            lv_obj_add_flag(peripheral_art, LV_OBJ_FLAG_HIDDEN);
-            lv_anim_del(peripheral_art, NULL);
+            if (!lv_obj_has_flag(peripheral_art, LV_OBJ_FLAG_HIDDEN)) {
+                lv_obj_add_flag(peripheral_art, LV_OBJ_FLAG_HIDDEN);
+                lv_anim_del(peripheral_art, NULL);
+            }
         }
     }
 
@@ -158,6 +163,21 @@ ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_status, struct peripheral_status_s
                             output_status_update_cb, get_state)
 ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
 
+static void charger_timer_cb(lv_timer_t *timer) {
+    struct zmk_widget_screen *widget = (struct zmk_widget_screen *)timer->user_data;
+    bool is_usb = false;
+#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+    is_usb = zmk_usb_is_powered();
+#endif
+    if (is_usb != widget->state.charging) {
+        struct battery_status_state state = {
+            .level = zmk_battery_state_of_charge(),
+            .usb_present = is_usb,
+        };
+        set_battery_status(widget, state);
+    }
+}
+
 /**
  * Initialization
  **/
@@ -178,6 +198,7 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 #if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
     is_usb = zmk_usb_is_powered();
 #endif
+    widget->state.charging = is_usb;
     if (!is_usb && peripheral_art) {
         lv_obj_add_flag(peripheral_art, LV_OBJ_FLAG_HIDDEN);
         lv_anim_del(peripheral_art, NULL);
@@ -185,6 +206,8 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 #endif
     widget_battery_status_init();
     widget_peripheral_status_init();
+
+    lv_timer_create(charger_timer_cb, 500, widget);
 
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_WPM)
     zmk_widget_luna_init(&luna_widget, canvas);
